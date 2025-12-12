@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The Fortress – Core Exchange + Modules</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; background: #0b0b0f; color: #e6f1ff; }
+    h1 { color: #00e0ff; margin-bottom: 0.25rem; }
+    h2 { color: #7df9ff; margin-top: 0; }
+    p.sub { color: #98a6b3; margin-top: 0; }
+    section { margin: 2rem 0; padding: 1rem; border: 1px solid #1d2533; border-radius: 8px; background: #10141c; }
+    button { padding: 0.5rem 1rem; margin: 0.5rem 0; background: #00e0ff; color: #001018; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    button.secondary { background: #263244; color: #e6f1ff; }
+    pre, .box { background: #0e121a; padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid #1d2533; }
+    input, select, textarea { width: 100%; padding: 0.5rem; margin: 0.25rem 0 0.5rem; border-radius: 6px; border: 1px solid #1d2533; background: #0e121a; color: #e6f1ff; }
+    label { display: block; margin-top: 0.5rem; font-weight: 600; }
+    small { color: #8aa0b5; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    footer { margin-top: 2rem; color: #7b8a99; }
+  </style>
+</head>
+<body>
+  <h1>The Fortress</h1>
+  <p class="sub">Core exchange + staking + savings + NFTs + marketplace + escrow, with dating, casino, and lounge</p>
+
+  <!-- Wallets -->
+  <section>
+    <h2>Wallets</h2>
+    <div class="grid">
+      <div>
+        <button onclick="loadWallets()">Load wallets</button>
+        <pre id="wallets">Click to load wallets...</pre>
+      </div>
+      <div>
+        <button class="secondary" onclick="checkHealth()">Check API health</button>
+        <pre id="health">Click to check health...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Exchange -->
+  <section>
+    <h2>Exchange</h2>
+    <div class="grid">
+      <div>
+        <label>Pair</label>
+        <select id="pair">
+          <option value="ETH/USDT">ETH/USDT</option>
+          <option value="BTC/USDT">BTC/USDT</option>
+          <option value="SOL/USDC">SOL/USDC</option>
+        </select>
+        <button onclick="getOrderBook()">Get order book</button>
+        <pre id="orderBook">Order book...</pre>
+      </div>
+      <div>
+        <label>Side</label>
+        <select id="side">
+          <option value="buy">buy</option>
+          <option value="sell">sell</option>
+        </select>
+        <label>Amount</label>
+        <input type="number" id="amount" placeholder="e.g., 0.1">
+        <label>Price</label>
+        <input type="number" id="price" placeholder="e.g., 2500">
+        <button onclick="placeOrder()">Place order</button>
+        <pre id="orderResult">Order result...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Staking & Savings -->
+  <section>
+    <h2>Staking & Savings</h2>
+    <div class="grid">
+      <div>
+        <label>Stake token</label>
+        <select id="stakeToken">
+          <option value="FORT">FORT</option>
+          <option value="ETH">ETH</option>
+          <option value="SOL">SOL</option>
+        </select>
+        <label>Amount</label>
+        <input type="number" id="stakeAmount" placeholder="e.g., 100">
+        <button onclick="stake()">Stake</button>
+        <pre id="stakeResult">Stake result...</pre>
+      </div>
+      <div>
+        <label>Savings token</label>
+        <select id="saveToken">
+          <option value="USDT">USDT</option>
+          <option value="USDC">USDC</option>
+        </select>
+        <label>Amount</label>
+        <input type="number" id="saveAmount" placeholder="e.g., 1000">
+        <button onclick="save()">Save</button>
+        <pre id="saveResult">Savings result...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- NFTs -->
+  <section>
+    <h2>NFTs: mint, list, buy</h2>
+    <div class="grid">
+      <div>
+        <label>Chain</label>
+        <select id="nftChain">
+          <option value="ethereum">ethereum</option>
+          <option value="polygon">polygon</option>
+          <option value="solana">solana</option>
+        </select>
+        <label>Name</label>
+        <input type="text" id="nftName" placeholder="Artifact of the Fortress">
+        <label>Metadata URL</label>
+        <input type="text" id="nftMeta" placeholder="https://.../metadata.json">
+        <button onclick="mintNFT()">Mint NFT</button>
+        <pre id="mintResult">Mint result...</pre>
+      </div>
+      <div>
+        <button class="secondary" onclick="listNFTs()">List NFTs</button>
+        <pre id="nfts">NFTs...</pre>
+      </div>
+      <div>
+        <label>NFT ID</label>
+        <input type="text" id="buyNftId" placeholder="nft-123">
+        <button onclick="buyNFT()">Buy NFT</button>
+        <pre id="buyResult">Buy result...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Escrow -->
+  <section>
+    <h2>Escrow for real goods & services</h2>
+    <div class="grid">
+      <div>
+        <label>Item description</label>
+        <input type="text" id="escrowItem" placeholder="Rowan blade, artisan-forged">
+        <label>Price</label>
+        <input type="number" id="escrowPrice" placeholder="e.g., 250">
+        <label>Buyer address</label>
+        <input type="text" id="escrowBuyer" placeholder="0x...">
+        <label>Seller address</label>
+        <input type="text" id="escrowSeller" placeholder="0x...">
+        <button onclick="createEscrow()">Create escrow</button>
+        <pre id="escrowCreateResult">Create result...</pre>
+      </div>
+      <div>
+        <label>Escrow ID</label>
+        <input type="text" id="escrowId" placeholder="escrow-123">
+        <button class="secondary" onclick="releaseEscrow()">Release escrow</button>
+        <pre id="escrowReleaseResult">Release result...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dating -->
+  <section>
+    <h2>Dating – Mythical Celtic Empire</h2>
+    <div class="grid">
+      <div>
+        <form id="datingForm" onsubmit="registerProfile(event)">
+          <label>Name</label>
+          <input type="text" id="name" required>
+          <label>Age</label>
+          <input type="number" id="age" required>
+          <label>Interests</label>
+          <input type="text" id="interests" required>
+          <button type="submit">Register profile</button>
+        </form>
+      </div>
+      <div>
+        <button class="secondary" onclick="loadProfiles()">View profiles</button>
+        <pre id="profiles">No profiles loaded yet...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Casino -->
+  <section>
+    <h2>Casino</h2>
+    <div class="grid">
+      <div>
+        <button onclick="casinoStatus()">Check casino status</button>
+        <pre id="casinoStatus">Status unknown...</pre>
+      </div>
+      <div>
+        <button class="secondary" onclick="casinoPlay()">Play demo</button>
+        <pre id="casinoPlay">No play yet...</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lounge -->
+  <section>
+    <h2>Lounge (chatroom)</h2>
+    <div class="grid">
+      <div>
+        <label>Message</label>
+        <textarea id="chatMessage" rows="3" placeholder="Say hello to the realm..."></textarea>
+        <button onclick="sendMessage()">Send message</button>
+      </div>
+      <div>
+        <button class="secondary" onclick="loadMessages()">Load messages</button>
+        <pre id="messages">No messages loaded yet...</pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <small>The Fortress v1 — core exchange plus modules. Next: providers, wallets, compliance, monitoring, mobile.</small>
+  </footer>
+
+  <script>
+    const API = '/api';
+
+    // Wallets & health
+    async function loadWallets() { try { const r = await fetch(`${API}/wallets`); const d = await r.json(); wallets.textContent = JSON.stringify(d.wallets, null, 2); } catch (e) { wallets.textContent = 'Error: ' + e; } }
+    async function checkHealth() { try { const r = await fetch(`${API}/health`); const d = await r.json(); health.textContent = JSON.stringify(d, null, 2); } catch (e) { health.textContent = 'Error: ' + e; } }
+
+    // Exchange
+    async function getOrderBook() { const pair = document.getElementById('pair').value; const r = await fetch(`${API}/exchange/orderbook?pair=${encodeURIComponent(pair)}`); const d = await r.json(); orderBook.textContent = JSON.stringify(d, null, 2); }
+    async function placeOrder() {
+      const payload = { pair: pair.value, side: side.value, amount: Number(amount.value), price: Number(price.value) };
+      const r = await fetch(`${API}/exchange/order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json(); orderResult.textContent = JSON.stringify(d, null, 2);
+    }
+
+    // Staking & savings
+    async function stake() {
+      const payload = { token: stakeToken.value, amount: Number(stakeAmount.value) };
+      const r = await fetch(`${API}/staking/stake`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json(); stakeResult.textContent = JSON.stringify(d, null, 2);
+    }
+    async function save() {
+      const payload = { token: saveToken.value, amount: Number(saveAmount.value) };
+      const r = await fetch(`${API}/savings/deposit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json(); saveResult.textContent = JSON.stringify(d, null, 2);
+    }
+
+    // NFTs
+    async function mintNFT() {
+      const payload = { chain: nftChain.value, name: nftName.value, metadataUrl: nftMeta.value };
+      const r = await fetch(`${API}/nft/mint`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json(); mintResult.textContent = JSON.stringify(d, null, 2);
+    }
+    async function listNFTs() { const r = await fetch(`${API}/nft/list`); const d = await r.json(); nfts.textContent = JSON.stringify(d.items, null, 2); }
+    async function buyNFT() {
+      const payload = { nftId: buyNftId.value };
+      const r = await fetch(`${API}/nft/buy`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json(); buyResult.textContent = JSON.stringify(d, null, 2);
+    }
+
+    // Escrow
+    async function createEscrow() {
+      const payload = { item: escrowItem.value, price: Number(escrowPrice.value), buyer: escrowBuyer.value, seller: escrowSeller.value };
+      const r = await fetch(`${API}/escrow/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json(); escrowCreateResult.textContent = JSON.stringify(d, null, 2);
+    }
+    async function releaseEscrow() {
+      const payload = { escrowId: escrowId.value };
+      const r = await fetch(`${API}/escrow/release`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json(); escrowReleaseResult.textContent = JSON.stringify(d, null, 2);
+    }
+
+    // Dating
+    async function registerProfile(event) { event.preventDefault(); const payload = { name: name.value, age: Number(age.value), interests: interests.value }; const r = await fetch(`${API}/dating/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const d = await r.json(); alert('Profile registered: ' + JSON.stringify(d.profile)); }
+    async function loadProfiles() { const r = await fetch(`${API}/dating/profiles`); const d = await r.json(); profiles.textContent = JSON.stringify(d.profiles, null, 2); }
+
+    // Casino
+    async function casinoStatus() { const r = await fetch(`${API}/casino/status`); const d = await r.json(); casinoStatus.textContent = JSON.stringify(d, null, 2); }
+    async function casinoPlay() { const r = await fetch(`${API}/casino/play`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game: 'demo', wager: 0 }) }); const d = await r.json(); casinoPlay.textContent = JSON.stringify(d, null, 2); }
+
+    // Lounge
+    async function sendMessage() { const msg = chatMessage.value.trim(); if (!msg) return; const r = await fetch(`${API}/lounge/message`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg }) }); await r.json(); chatMessage.value=''; await loadMessages(); }
+    async function loadMessages() { const r = await fetch(`${API}/lounge/messages`); const d = await r.json(); messages.textContent = JSON.stringify(d.messages, null, 2); }
+  </script>
+</body>
+</html>

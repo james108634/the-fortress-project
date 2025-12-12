@@ -1,0 +1,17 @@
+api:
+  build:
+    context: /root/api
+    dockerfile: Dockerfile
+  container_name: fortress-api
+  ports:
+    - "4000:4000"
+  restart: always
+  environment:
+    PORT: 4000
+    MONGODB_URI: mongodb://fortressAdmin:StrongPasswordHere@mongo:27017/fortress?authSource=admin
+    REDIS_URL: redis://redis:6379
+    JWT_SECRET: yourStrongSecretHere
+    JWT_EXPIRES_IN: 30d
+  volumes:
+    - ./api:/app
+    - /app/node_modules
